@@ -6,34 +6,61 @@
     <title>Text Encryptor and Decryptor</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
             max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
         }
         input, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
         }
         button {
-            padding: 10px 20px;
-            margin: 10px 0;
+            width: 48%;
+            padding: 15px;
+            margin: 10px 1%;
             border: none;
-            border-radius: 4px;
-            background-color: #28a745;
+            border-radius: 8px;
+            background-color: #007bff;
             color: #fff;
+            font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        @media (max-width: 600px) {
+            button {
+                width: 100%;
+                margin: 10px 0;
+            }
         }
     </style>
 </head>
@@ -42,8 +69,10 @@
         <h1>Text Encryptor and Decryptor</h1>
         <textarea id="inputText" rows="4" placeholder="Enter your text here..."></textarea>
         <input type="password" id="password" placeholder="Enter password">
-        <button onclick="encrypt()">Encrypt</button>
-        <button onclick="decrypt()">Decrypt</button>
+        <div class="button-group">
+            <button onclick="encrypt()">Encrypt</button>
+            <button onclick="decrypt()">Decrypt</button>
+        </div>
         <h2>Result:</h2>
         <textarea id="resultText" rows="4" readonly></textarea>
     </div>
