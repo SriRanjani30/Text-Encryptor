@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Encryptor and Decryptor</title>
+    <title>File and Text Encryptor and Decryptor</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -65,13 +65,19 @@
         .form-group {
             margin-bottom: 15px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Text Encryptor and Decryptor</h1>
+        <h1>File and Text Encryptor and Decryptor</h1>
         <div class="form-group">
-            <textarea id="inputText" rows="4" placeholder="Enter your text here..."></textarea>
+            <textarea id="inputText" rows="4" placeholder="Enter your text here (leave empty to encrypt/decrypt file)..."></textarea>
+        </div>
+        <div class="form-group">
+            <input type="file" id="fileInput">
         </div>
         <div class="form-group">
             <select id="algorithm">
@@ -84,67 +90,99 @@
             <input type="password" id="password" placeholder="Enter password">
         </div>
         <div class="button-group">
-            <button onclick="encrypt()">Encrypt</button>
-            <button onclick="decrypt()">Decrypt</button>
+            <button onclick="encryptData()">Encrypt</button>
+            <button onclick="decryptData()">Decrypt</button>
         </div>
-        <h2>Result:</h2>
-        <textarea id="resultText" rows="4" readonly></textarea>
+        <div class="form-group">
+            <textarea id="outputText" rows="4" readonly placeholder="Output will appear here..."></textarea>
+        </div>
+        <a id="downloadLink" class="hidden" download="result.txt">Download Result</a>
     </div>
 
     <!-- Include CryptoJS Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        function encrypt() {
-            let text = document.getElementById('inputText').value;
-            let password = document.getElementById('password').value;
-            let algorithm = document.getElementById('algorithm').value;
-            let encrypted;
-            
-            switch (algorithm) {
-                case 'AES':
-                    encrypted = CryptoJS.AES.encrypt(text, password).toString();
-                    break;
-                case 'DES':
-                    encrypted = CryptoJS.DES.encrypt(text, password).toString();
-                    break;
-                case 'TripleDES':
-                    encrypted = CryptoJS.TripleDES.encrypt(text, password).toString();
-                    break;
-                default:
-                    alert('Unsupported algorithm');
-                    return;
-            }
-
-            document.getElementById('resultText').value = encrypted;
+        function encryptData() {
+            processData(true);
         }
 
-        function decrypt() {
-            let text = document.getElementById('inputText').value;
-            let password = document.getElementById('password').value;
-            let algorithm = document.getElementById('algorithm').value;
-            let decrypted;
-            
-            try {
+        function decryptData() {
+            processData(false);
+        }
+
+        function processData(isEncrypt) {
+            const text = document.getElementById('inputText').value;
+            const fileInput = document.getElementById('fileInput');
+            const password = document.getElementById('password').value;
+            const algorithm = document.getElementById('algorithm').value;
+            const outputText = document.getElementById('outputText');
+
+            if (text) {
+                // Process text encryption/decryption
+                let result;
                 switch (algorithm) {
                     case 'AES':
-                        decrypted = CryptoJS.AES.decrypt(text, password);
+                        result = isEncrypt ? CryptoJS.AES.encrypt(text, password).toString() : CryptoJS.AES.decrypt(text, password).toString(CryptoJS.enc.Utf8);
                         break;
                     case 'DES':
-                        decrypted = CryptoJS.DES.decrypt(text, password);
+                        result = isEncrypt ? CryptoJS.DES.encrypt(text, password).toString() : CryptoJS.DES.decrypt(text, password).toString(CryptoJS.enc.Utf8);
                         break;
                     case 'TripleDES':
-                        decrypted = CryptoJS.TripleDES.decrypt(text, password);
+                        result = isEncrypt ? CryptoJS.TripleDES.encrypt(text, password).toString() : CryptoJS.TripleDES.decrypt(text, password).toString(CryptoJS.enc.Utf8);
                         break;
                     default:
                         alert('Unsupported algorithm');
                         return;
                 }
+                outputText.value = result;
+            } else if (fileInput.files.length > 0) {
+                // Process file encryption/decryption
+                const file = fileInput.files[0];
+                const reader = new FileReader();
 
-                let originalText = decrypted.toString(CryptoJS.enc.Utf8);
-                document.getElementById('resultText').value = originalText;
-            } catch (e) {
-                document.getElementById('resultText').value = 'Decryption failed';
+                reader.onload = function (e) {
+                    let result;
+                    const fileContent = e.target.result;
+
+                    switch (algorithm) {
+                        case 'AES':
+                            result = isEncrypt ? CryptoJS.AES.encrypt(CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(fileContent)), password).toString() :
+                                                 CryptoJS.enc.Base64.parse(CryptoJS.AES.decrypt(fileContent, password).toString(CryptoJS.enc.Utf8)).toString(CryptoJS.enc.Utf8);
+                            break;
+                        case 'DES':
+                            result = isEncrypt ? CryptoJS.DES.encrypt(CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(fileContent)), password).toString() :
+                                                 CryptoJS.enc.Base64.parse(CryptoJS.DES.decrypt(fileContent, password).toString(CryptoJS.enc.Utf8)).toString(CryptoJS.enc.Utf8);
+                            break;
+                        case 'TripleDES':
+                            result = isEncrypt ? CryptoJS.TripleDES.encrypt(CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(fileContent)), password).toString() :
+                                                 CryptoJS.enc.Base64.parse(CryptoJS.TripleDES.decrypt(fileContent, password).toString(CryptoJS.enc.Utf8)).toString(CryptoJS.enc.Utf8);
+                            break;
+                        default:
+                            alert('Unsupported algorithm');
+                            return;
+                    }
+
+                    downloadResult(result, isEncrypt ? 'encrypted.txt' : 'decrypted.txt');
+                };
+
+                reader.readAsBinaryString(file);
+            } else {
+                alert('Please enter text or select a file.');
             }
+        }
+
+        function downloadResult(result, fileName) {
+            const blob = new Blob([result], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = url;
+            downloadLink.download = fileName;
+            downloadLink.classList.remove('hidden');
+            downloadLink.click();
+            downloadLink.classList.add('hidden');
+
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
