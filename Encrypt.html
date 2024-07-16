@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Encryptor and Decryptor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Encryptor and Decryptor</h1>
+        <textarea id="inputText" rows="4" placeholder="Enter your text here..."></textarea>
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="encrypt()">Encrypt</button>
+        <button onclick="decrypt()">Decrypt</button>
+        <h2>Result:</h2>
+        <textarea id="resultText" rows="4" readonly></textarea>
+    </div>
+
+    <!-- Include CryptoJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        function encrypt() {
+            let text = document.getElementById('inputText').value;
+            let password = document.getElementById('password').value;
+            let encrypted = CryptoJS.AES.encrypt(text, password).toString();
+            document.getElementById('resultText').value = encrypted;
+        }
+
+        function decrypt() {
+            let text = document.getElementById('inputText').value;
+            let password = document.getElementById('password').value;
+            try {
+                let decrypted = CryptoJS.AES.decrypt(text, password);
+                let originalText = decrypted.toString(CryptoJS.enc.Utf8);
+                document.getElementById('resultText').value = originalText;
+            } catch (e) {
+                document.getElementById('resultText').value = 'Decryption failed';
+            }
+        }
+    </script>
+</body>
+</html>
