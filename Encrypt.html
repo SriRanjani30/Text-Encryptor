@@ -26,9 +26,9 @@
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #007bff;
         }
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
@@ -43,14 +43,14 @@
             margin: 10px 1%;
             border: none;
             border-radius: 8px;
-            background-color: #007bff;
+            background-color: #28a745;
             color: #fff;
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
         .button-group {
             display: flex;
@@ -62,13 +62,27 @@
                 margin: 10px 0;
             }
         }
+        .form-group {
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Text Encryptor and Decryptor</h1>
-        <textarea id="inputText" rows="4" placeholder="Enter your text here..."></textarea>
-        <input type="password" id="password" placeholder="Enter password">
+        <div class="form-group">
+            <textarea id="inputText" rows="4" placeholder="Enter your text here..."></textarea>
+        </div>
+        <div class="form-group">
+            <select id="algorithm">
+                <option value="AES">AES</option>
+                <option value="DES">DES</option>
+                <option value="TripleDES">TripleDES</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
         <div class="button-group">
             <button onclick="encrypt()">Encrypt</button>
             <button onclick="decrypt()">Decrypt</button>
@@ -83,15 +97,49 @@
         function encrypt() {
             let text = document.getElementById('inputText').value;
             let password = document.getElementById('password').value;
-            let encrypted = CryptoJS.AES.encrypt(text, password).toString();
+            let algorithm = document.getElementById('algorithm').value;
+            let encrypted;
+            
+            switch (algorithm) {
+                case 'AES':
+                    encrypted = CryptoJS.AES.encrypt(text, password).toString();
+                    break;
+                case 'DES':
+                    encrypted = CryptoJS.DES.encrypt(text, password).toString();
+                    break;
+                case 'TripleDES':
+                    encrypted = CryptoJS.TripleDES.encrypt(text, password).toString();
+                    break;
+                default:
+                    alert('Unsupported algorithm');
+                    return;
+            }
+
             document.getElementById('resultText').value = encrypted;
         }
 
         function decrypt() {
             let text = document.getElementById('inputText').value;
             let password = document.getElementById('password').value;
+            let algorithm = document.getElementById('algorithm').value;
+            let decrypted;
+            
             try {
-                let decrypted = CryptoJS.AES.decrypt(text, password);
+                switch (algorithm) {
+                    case 'AES':
+                        decrypted = CryptoJS.AES.decrypt(text, password);
+                        break;
+                    case 'DES':
+                        decrypted = CryptoJS.DES.decrypt(text, password);
+                        break;
+                    case 'TripleDES':
+                        decrypted = CryptoJS.TripleDES.decrypt(text, password);
+                        break;
+                    default:
+                        alert('Unsupported algorithm');
+                        return;
+                }
+
                 let originalText = decrypted.toString(CryptoJS.enc.Utf8);
                 document.getElementById('resultText').value = originalText;
             } catch (e) {
